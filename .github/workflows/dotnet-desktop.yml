@@ -18,7 +18,7 @@ jobs:
 
     env:
       Solution_Name: ConsoleApp\ConsoleApp.sln                             # ソリューション名 (例: MyWpfApp.sln)。
-      Test_Project_Path: ConsoleApp.Test\ConsoleApp.Test.csproj            # テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
+      Test_Project_Path: ConsoleApp.Test\ConsoleApp.Test       # テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
      
     steps:
     - name: Checkout
