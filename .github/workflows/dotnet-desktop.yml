@@ -17,11 +17,9 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: your-solution-name                         # 置き換える: ソリューション名 (例: MyWpfApp.sln)。
-      Test_Project_Path: your-test-project-path                 # 置き換える: テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
-      Wap_Project_Directory: your-wap-project-directory-name    # 置き換える: WAPプロジェクトのディレクトリ (例: MyWpfApp.Package)。
-      Wap_Project_Path: your-wap-project-path                   # 置き換える: WAPプロジェクトのパス (例: MyWpfApp.Package\MyWpfApp.Package.wapproj)。
-
+      Solution_Name: ConsoleApp.sln                             #  ソリューション名 (例: MyWpfApp.sln)。
+      Test_Project_Path: ConsoleApp.Test\ConsoleApp.Test.csproj # テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
+     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
