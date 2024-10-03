@@ -1,0 +1,87 @@
+name: .NET Framework Desktop
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: your-solution-name                         # 置き換える: ソリューション名 (例: MyWpfApp.sln)。
+      Test_Project_Path: your-test-project-path                 # 置き換える: テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
+      Wap_Project_Directory: your-wap-project-directory-name    # 置き換える: WAPプロジェクトのディレクトリ (例: MyWpfApp.Package)。
+      Wap_Project_Path: your-wap-project-path                   # 置き換える: WAPプロジェクトのパス (例: MyWpfApp.Package\MyWpfApp.Package.wapproj)。
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # MSBuildをセットアップして、.NET Frameworkをビルド
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    # 必要に応じてNuGetをセットアップ
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1
+
+    # ソリューションの復元
+    - name: Restore NuGet packages
+      run: nuget restore $env:Solution_Name
+
+    # ソリューションをビルド (.NET Framework)
+    - name: Build solution
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # VSTestを使って単体テストを実行
+    - name: Run unit tests
+      run: |
+        vstest.console.exe $env:Test_Project_Path /Platform:x64
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # アプリケーションの復元 (必要に応じて）
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Base64でエンコードされたPFXをデコードし、サイン用の証明書を保存
+    - name: Decode the pfx
+      run: |
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
+        $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+    # Windows Application Packagingプロジェクトをビルドしてパッケージを作成 (.NET Frameworkでも同様)
+    - name: Create the app package
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      env:
+        Appx_Bundle: Always
+        Appx_Bundle_Platforms: x86|x64
+        Appx_Package_Build_Mode: StoreUpload
+        Configuration: ${{ matrix.configuration }}
+
+    # PFX証明書を削除
+    - name: Remove the pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
+
+    # MSIXパッケージのアップロード
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: MSIX Package
+        path: ${{ env.Wap_Project_Directory }}\AppPackages
