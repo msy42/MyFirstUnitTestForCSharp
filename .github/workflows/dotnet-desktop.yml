@@ -17,8 +17,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: ConsoleApp\ConsoleApp.sln                             #  ソリューション名 (例: MyWpfApp.sln)。
-      Test_Project_Path: ConsoleApp.Test\ConsoleApp.Test.csproj # テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
+      Solution_Name: ConsoleApp\ConsoleApp.sln                             # ソリューション名 (例: MyWpfApp.sln)。
+      Test_Project_Path: ConsoleApp.Test\ConsoleApp.Test.csproj            # テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
      
     steps:
     - name: Checkout
@@ -34,7 +34,7 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1
 
-    # ソリューションの復元
+    # ソリューションの復元 (.NET Framework プロジェクトの NuGet パッケージを復元)
     - name: Restore NuGet packages
       run: nuget restore $env:Solution_Name
 
@@ -44,15 +44,19 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-     # xunit.console.runner を使用してテストを実行
-    - name: Run unit tests with xUnit Console Runner
+    # xunit.runner.console をダウンロードしてテストを実行
+    - name: Download and run xUnit Console Runner
       run: |
-        dotnet tool install -g xunit.runner.console    # xunit.runner.consoleをインストール
-        xunit.console.exe $env:Test_Project_Path\bin\$env:Configuration\net6.0\ConsoleApp.Test.dll   # テストDLLを指定
+        # xunit.runner.console の zip ファイルをダウンロード
+        Invoke-WebRequest -Uri https://github.com/xunit/xunit/releases/download/v2.4.1/xunit.console.2.4.1.zip -OutFile xunit.console.zip
+        Expand-Archive -Path xunit.console.zip -DestinationPath xunit_console
+
+        # xunit.console.exe を使用してテストを実行
+        ./xunit_console/xunit.console.exe $env:Test_Project_Path\bin\$env:Configuration\net48\ConsoleApp.Test.dll
       env:
         Configuration: ${{ matrix.configuration }}
-        
-    # アプリケーションの復元 (必要に応じて）
+
+    # アプリケーションの復元 (必要に応じて)
     - name: Restore the application
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
