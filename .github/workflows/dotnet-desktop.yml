@@ -44,13 +44,14 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-    # VSTestを使って単体テストを実行
-    - name: Run unit tests
+     # xunit.console.runner を使用してテストを実行
+    - name: Run unit tests with xUnit Console Runner
       run: |
-        vstest.console.exe $env:Test_Project_Path /Platform:x64
+        dotnet tool install -g xunit.runner.console    # xunit.runner.consoleをインストール
+        xunit.console.exe $env:Test_Project_Path\bin\$env:Configuration\net6.0\ConsoleApp.Test.dll   # テストDLLを指定
       env:
         Configuration: ${{ matrix.configuration }}
-
+        
     # アプリケーションの復元 (必要に応じて）
     - name: Restore the application
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
