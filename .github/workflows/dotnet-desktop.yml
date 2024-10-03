@@ -51,7 +51,7 @@ jobs:
         nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory .
         
         # xunit.console.exe を使ってテストを実行
-        ./xunit.runner.console.2.4.1/tools/net472/xunit.console.exe $env:Test_Project_Path\bin\$env:Configuration\net48\ConsoleApp.Test.dll
+        ./xunit.runner.console.2.4.1/tools/net472/xunit.console.exe $env:ConsoleApp.Test\bin\Debug\ConsoleApp.Test.dll
       env:
         Configuration: ${{ matrix.configuration }}
 
