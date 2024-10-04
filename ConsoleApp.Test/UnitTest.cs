@@ -9,7 +9,7 @@ namespace ConsoleApp.Test
         {
             Calculator calculator = new Calculator();
             int result = calculator.Add(1, 2);
-            Assert.Equal(0, result);
+            Assert.Equal(3, result);
         }
     }
 }
