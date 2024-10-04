@@ -17,8 +17,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: ConsoleApp\ConsoleApp.sln                             # ソリューション名 (例: MyWpfApp.sln)。
-      Test_Project_Path: ConsoleApp.Test      # テストプロジェクトのパス (例: MyWpfApp.Tests\MyWpfApp.Tests.csproj)。
+      Solution_Name: ConsoleApp\ConsoleApp.sln  # ソリューション名 (例: MyApp.sln)。
+      Test_Project_Path: ConsoleApp.Test       # テストプロジェクトのパス (例: Test\MyApp.Test)。
      
     steps:
     - name: Checkout
